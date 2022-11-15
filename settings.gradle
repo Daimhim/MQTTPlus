@@ -1,0 +1,38 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+        maven {
+            url "https://repo.eclipse.org/content/repositories/paho-snapshots/"
+        }
+        maven {
+            credentials {
+                username '5fe03dee8d483c39b2b80729'
+                password 'wD=4oZ67JbAP'
+            }
+            url 'https://packages.aliyun.com/maven/repository/2003252-snapshot-a8Mktt/'
+        }
+        maven { url 'https://jitpack.io' }
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url "https://repo.eclipse.org/content/repositories/paho-snapshots/"
+        }
+        maven {
+            credentials {
+                username '5fe03dee8d483c39b2b80729'
+                password 'wD=4oZ67JbAP'
+            }
+            url 'https://packages.aliyun.com/maven/repository/2003252-snapshot-a8Mktt/'
+        }
+        maven { url 'https://jitpack.io' }
+    }
+}
+rootProject.name = "MQTTDEemo"
+include ':app'

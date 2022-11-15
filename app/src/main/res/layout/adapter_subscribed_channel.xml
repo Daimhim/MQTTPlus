@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:layout_marginStart="12dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintEnd_toStartOf="@+id/editTextTextPersonName6"
+            app:layout_constraintHorizontal_weight="6"
+            android:hint="topic"
+            android:id="@+id/editTextTextPersonName5" />
+    <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/editTextTextPersonName5"
+            android:layout_marginStart="10dp"
+            app:layout_constraintEnd_toStartOf="@+id/imageView"
+            app:layout_constraintHorizontal_weight="4"
+            android:hint="qos"
+            android:id="@+id/editTextTextPersonName6" />
+    <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginHorizontal="12dp"
+            android:padding="5dp"
+            app:layout_constraintStart_toEndOf="@+id/editTextTextPersonName6"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:srcCompat="@android:drawable/ic_delete"
+            android:id="@+id/imageView"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
