@@ -145,7 +145,7 @@ class Mqtt : MqttCallback,IMqttActionListener{
     }
     fun disconnect(){
         mClient?.disconnect()
-        mClient = null
+//        mClient = null
     }
 
     interface MessageCallback {

@@ -35,7 +35,6 @@
         <EditText
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:inputType="number"
                 android:layout_marginTop="10dp"
                 android:layout_marginStart="10dp"
                 app:layout_constraintHorizontal_chainStyle="spread_inside"
@@ -47,7 +46,6 @@
         <EditText
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:inputType="number"
                 android:layout_marginStart="10dp"
                 app:layout_constraintStart_toEndOf="@+id/editTextTextPersonName2"
                 app:layout_constraintTop_toTopOf="@+id/editTextTextPersonName2"
