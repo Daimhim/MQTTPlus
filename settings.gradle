@@ -40,5 +40,6 @@ dependencyResolutionManagement {
         maven { url 'https://jitpack.io' }
     }
 }
-rootProject.name = "MQTTDEemo"
+rootProject.name = "MQTT-Plus"
 include ':app'
+include ':mqtt_plus'

@@ -1,0 +1,8 @@
+plugins {
+//    id 'java-library'
+    id 'org.jetbrains.kotlin.jvm'
+}
+
+dependencies {
+    compileOnly("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
+}
