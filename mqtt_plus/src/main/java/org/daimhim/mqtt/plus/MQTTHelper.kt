@@ -166,8 +166,9 @@ class MQTTHelper {
     fun publish(topic: String?, message: MqttMessage?) {
         mqttClient.publish(topic, message)
     }
-    fun publish(topic: String?, message: MqttMessage?,callback:IMqttActionListener) {
-        aClient?.publish(topic, message,null,callback)
+
+    fun publish(topic: String?, message: MqttMessage?,userContext:Any?,callback:IMqttActionListener) {
+        aClient?.publish(topic, message,userContext,callback)
     }
 
     fun setCallback(callback: MqttCallback?) {
@@ -370,7 +371,7 @@ class MQTTHelper {
         release()
     }
     private fun release(){
-        val field = this::class.java.getField("mqttClient")
+        val field = this::class.java.getDeclaredField("mqttClient")
         field.isAccessible = true
         field.set(this,null)
         aClient = null
