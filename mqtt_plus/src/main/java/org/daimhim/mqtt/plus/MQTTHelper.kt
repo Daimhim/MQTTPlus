@@ -1,7 +1,6 @@
 package org.daimhim.mqtt.plus
 
 import org.eclipse.paho.client.mqttv3.*
-import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence
 import org.eclipse.paho.client.mqttv3.util.Debug
 import java.util.concurrent.ScheduledExecutorService
 
@@ -24,9 +23,7 @@ class MQTTHelper {
      */
     private val subscribes = mutableSetOf<String>()
 
-    private lateinit var mqttClient: MqttClient
-
-    private var isInit = false
+    private var mqttClient: MqttClient? = null
 
     fun bindMQTT(
         serverURI: String?,
@@ -34,13 +31,14 @@ class MQTTHelper {
         persistence: MqttClientPersistence?,
         executorService: ScheduledExecutorService?
     ) {
-        checkInitialState()
-        MQTTClient(
-            serverURI,
-            clientId,
-            persistence,
-            executorService,
-        ).let { bindMQTT(it) }
+        bindMQTT(
+            MQTTClient(
+                serverURI,
+                clientId,
+                persistence,
+                executorService,
+            )
+        )
     }
 
     fun bindMQTT(
@@ -48,28 +46,31 @@ class MQTTHelper {
         clientId: String?,
         persistence: MqttClientPersistence?
     ) {
-        println("bindMQTT isInit $isInit")
-        checkInitialState()
-        MQTTClient(
-            serverURI,
-            clientId, persistence
-        ).let { bindMQTT(it) }
+        bindMQTT(
+            MQTTClient(
+                serverURI,
+                clientId,
+                persistence
+            )
+        )
     }
 
     fun bindMQTT(
         serverURI: String?,
         clientId: String?
     ) {
-        checkInitialState()
-        MQTTClient(
-            serverURI,
-            clientId
-        ).let { bindMQTT(it) }
+        bindMQTT(
+            MQTTClient(
+                serverURI,
+                clientId
+            )
+        )
     }
 
     fun bindMQTT(mqtt: MqttClient) {
-        checkInitialState()
-        isInit = true
+        if (mqttClient != null){
+            close()
+        }
         mqttClient = mqtt
         if (mqtt is MQTTClient) {
             aClient = mqtt.getAsyncClient()
@@ -88,17 +89,12 @@ class MQTTHelper {
             e.printStackTrace()
         }
     }
-    private fun checkInitialState(){
-        if (isInit){
-            throw IllegalStateException("mqttClient调用close之前不能重新初始化")
-        }
-    }
     fun connect() {
-        mqttClient.connect()
+        mqttClient?.connect()
     }
 
     fun connect(options: MqttConnectOptions?) {
-        mqttClient.connect(options)
+        mqttClient?.connect(options)
     }
 
     fun connect(
@@ -117,12 +113,12 @@ class MQTTHelper {
     }
 
 
-    fun connectWithResult(options: MqttConnectOptions?): IMqttToken {
-        return mqttClient.connectWithResult(options)
+    fun connectWithResult(options: MqttConnectOptions?): IMqttToken? {
+        return mqttClient?.connectWithResult(options)
     }
 
     fun disconnect() {
-        mqttClient.disconnect()
+        mqttClient?.disconnect()
         subscribes.clear()
     }
     fun disconnect(quiesceTimeout:Long,callback:IMqttActionListener) {
@@ -131,22 +127,22 @@ class MQTTHelper {
     }
 
     fun disconnect(quiesceTimeout: Long) {
-        mqttClient.disconnect(quiesceTimeout)
+        mqttClient?.disconnect(quiesceTimeout)
         subscribes.clear()
     }
 
     fun disconnectForcibly() {
-        mqttClient.disconnectForcibly()
+        mqttClient?.disconnectForcibly()
         subscribes.clear()
     }
 
     fun disconnectForcibly(disconnectTimeout: Long) {
-        mqttClient.disconnectForcibly(disconnectTimeout)
+        mqttClient?.disconnectForcibly(disconnectTimeout)
         subscribes.clear()
     }
 
     fun disconnectForcibly(quiesceTimeout: Long, disconnectTimeout: Long) {
-        mqttClient.disconnectForcibly(quiesceTimeout, disconnectTimeout)
+        mqttClient?.disconnectForcibly(quiesceTimeout, disconnectTimeout)
         subscribes.clear()
     }
 
@@ -155,16 +151,16 @@ class MQTTHelper {
         disconnectTimeout: Long,
         sendDisconnectPacket: Boolean
     ) {
-        mqttClient.disconnectForcibly(quiesceTimeout, disconnectTimeout, sendDisconnectPacket)
+        mqttClient?.disconnectForcibly(quiesceTimeout, disconnectTimeout, sendDisconnectPacket)
         subscribes.clear()
     }
 
     fun publish(topic: String?, payload: ByteArray?, qos: Int, retained: Boolean) {
-        mqttClient.publish(topic, payload, qos, retained)
+        mqttClient?.publish(topic, payload, qos, retained)
     }
 
     fun publish(topic: String?, message: MqttMessage?) {
-        mqttClient.publish(topic, message)
+        mqttClient?.publish(topic, message)
     }
 
     fun publish(topic: String?, message: MqttMessage?,userContext:Any?,callback:IMqttActionListener) {
@@ -172,79 +168,79 @@ class MQTTHelper {
     }
 
     fun setCallback(callback: MqttCallback?) {
-        mqttClient.setCallback(callback)
+        mqttClient?.setCallback(callback)
     }
 
-    fun getTopic(topic: String?): MqttTopic {
-        return mqttClient.getTopic(topic)
+    fun getTopic(topic: String?): MqttTopic? {
+        return mqttClient?.getTopic(topic)
     }
 
     fun isConnected(): Boolean {
-        return isInit && mqttClient.isConnected
+        return mqttClient?.isConnected?:false
     }
 
-    fun getClientId(): String {
-        return mqttClient.getClientId()
+    fun getClientId(): String? {
+        return mqttClient?.clientId
     }
 
-    fun getServerURI(): String {
-        return mqttClient.getServerURI()
+    fun getServerURI(): String? {
+        return mqttClient?.serverURI
     }
 
     fun getPendingDeliveryTokens(): Array<IMqttDeliveryToken> {
-        return mqttClient.getPendingDeliveryTokens()
+        return mqttClient?.pendingDeliveryTokens ?: arrayOf()
     }
 
     fun setManualAcks(manualAcks: Boolean) {
-        mqttClient.setManualAcks(manualAcks)
+        mqttClient?.setManualAcks(manualAcks)
     }
 
     fun reconnect() {
-        mqttClient.reconnect()
+        mqttClient?.reconnect()
     }
 
     fun messageArrivedComplete(messageId: Int, qos: Int) {
-        mqttClient.messageArrivedComplete(messageId, qos)
+        mqttClient?.messageArrivedComplete(messageId, qos)
     }
 
     fun setTimeToWait(timeToWaitInMillis: Long) {
-        mqttClient.setTimeToWait(timeToWaitInMillis)
+        mqttClient?.setTimeToWait(timeToWaitInMillis)
     }
 
     fun getTimeToWait(): Long {
-        return mqttClient.getTimeToWait()
+        return mqttClient?.timeToWait?:-1L
     }
 
-    fun getCurrentServerURI(): String {
-        return mqttClient.getCurrentServerURI()
+    fun getCurrentServerURI(): String? {
+        return mqttClient?.currentServerURI
     }
 
-    fun getDebug(): Debug {
-        return mqttClient.getDebug()
+    fun getDebug(): Debug? {
+        return mqttClient?.debug
     }
 
     fun subscribe(topicFilter: String) {
-        mqttClient.subscribe(topicFilter)
+        mqttClient?.subscribe(topicFilter)
         subscribes.add(topicFilter)
     }
 
     fun subscribe(topicFilters: Array<out String>) {
-        mqttClient.subscribe(topicFilters)
+        mqttClient?.subscribe(topicFilters)
         subscribes.addAll(topicFilters)
     }
 
     fun subscribe(topicFilter: String, qos: Int) {
-        mqttClient.subscribe(topicFilter, qos)
+        mqttClient?.subscribe(topicFilter, qos)
         subscribes.add(topicFilter)
     }
 
     fun subscribe(topicFilters: Array<out String>, qos: IntArray?) {
-        mqttClient.subscribe(topicFilters, qos)
+        mqttClient?.subscribe(topicFilters, qos)
         subscribes.addAll(topicFilters)
     }
 
     fun subscribe(topicFilter: String, messageListener: IMqttMessageListener?) {
-        mqttClient.subscribe(topicFilter, messageListener)
+        mqttClient?.subscribe(topicFilter, messageListener)
         subscribes.add(topicFilter)
     }
 
@@ -252,12 +248,12 @@ class MQTTHelper {
         topicFilters: Array<out String>,
         messageListeners: Array<out IMqttMessageListener>?
     ) {
-        mqttClient.subscribe(topicFilters, messageListeners)
+        mqttClient?.subscribe(topicFilters, messageListeners)
         subscribes.addAll(topicFilters)
     }
 
     fun subscribe(topicFilter: String, qos: Int, messageListener: IMqttMessageListener?) {
-        mqttClient.subscribe(topicFilter, qos, messageListener)
+        mqttClient?.subscribe(topicFilter, qos, messageListener)
         subscribes.add(topicFilter)
     }
 
@@ -266,12 +262,12 @@ class MQTTHelper {
         qos: IntArray?,
         messageListeners: Array<out IMqttMessageListener>?
     ) {
-        mqttClient.subscribe(topicFilters, qos, messageListeners)
+        mqttClient?.subscribe(topicFilters, qos, messageListeners)
         subscribes.addAll(topicFilters)
     }
 
-    fun subscribeWithResponse(topicFilter: String): IMqttToken {
-        return mqttClient.subscribeWithResponse(topicFilter)
+    fun subscribeWithResponse(topicFilter: String): IMqttToken? {
+        return mqttClient?.subscribeWithResponse(topicFilter)
             .apply {
                 subscribes.add(topicFilter)
             }
@@ -280,15 +276,15 @@ class MQTTHelper {
     fun subscribeWithResponse(
         topicFilter: String,
         messageListener: IMqttMessageListener?
-    ): IMqttToken {
-        return mqttClient.subscribeWithResponse(topicFilter, messageListener)
+    ): IMqttToken? {
+        return mqttClient?.subscribeWithResponse(topicFilter, messageListener)
             .apply {
                 subscribes.add(topicFilter)
             }
     }
 
-    fun subscribeWithResponse(topicFilter: String, qos: Int): IMqttToken {
-        return mqttClient.subscribeWithResponse(topicFilter, qos)
+    fun subscribeWithResponse(topicFilter: String, qos: Int): IMqttToken? {
+        return mqttClient?.subscribeWithResponse(topicFilter, qos)
             .apply {
                 subscribes.add(topicFilter)
             }
@@ -298,15 +294,15 @@ class MQTTHelper {
         topicFilter: String,
         qos: Int,
         messageListener: IMqttMessageListener?
-    ): IMqttToken {
-        return mqttClient.subscribeWithResponse(topicFilter, qos, messageListener)
+    ): IMqttToken? {
+        return mqttClient?.subscribeWithResponse(topicFilter, qos, messageListener)
             .apply {
                 subscribes.add(topicFilter)
             }
     }
 
-    fun subscribeWithResponse(topicFilters: Array<out String>): IMqttToken {
-        return mqttClient.subscribeWithResponse(topicFilters)
+    fun subscribeWithResponse(topicFilters: Array<out String>): IMqttToken? {
+        return mqttClient?.subscribeWithResponse(topicFilters)
             .apply {
                 subscribes.addAll(topicFilters)
             }
@@ -315,8 +311,8 @@ class MQTTHelper {
     fun subscribeWithResponse(
         topicFilters: Array<out String>,
         messageListeners: Array<out IMqttMessageListener>?
-    ): IMqttToken {
-        return mqttClient.subscribeWithResponse(topicFilters, messageListeners)
+    ): IMqttToken? {
+        return mqttClient?.subscribeWithResponse(topicFilters, messageListeners)
             .apply {
                 subscribes.addAll(topicFilters)
             }
@@ -325,8 +321,8 @@ class MQTTHelper {
     fun subscribeWithResponse(
         topicFilters: Array<out String>,
         qos: IntArray?
-    ): IMqttToken {
-        return mqttClient.subscribeWithResponse(topicFilters, qos)
+    ): IMqttToken? {
+        return mqttClient?.subscribeWithResponse(topicFilters, qos)
             .apply {
                 subscribes.addAll(topicFilters)
             }
@@ -344,12 +340,12 @@ class MQTTHelper {
     }
 
     fun unsubscribe(topicFilter: String) {
-        mqttClient.unsubscribe(topicFilter)
+        mqttClient?.unsubscribe(topicFilter)
         subscribes.remove(topicFilter)
     }
 
     fun unsubscribe(topicFilters: Array<out String>) {
-        mqttClient.unsubscribe(topicFilters)
+        mqttClient?.unsubscribe(topicFilters)
         subscribes.removeAll(topicFilters.toSet())
     }
 
@@ -362,20 +358,17 @@ class MQTTHelper {
     }
 
     fun close() {
-        mqttClient.close()
+        mqttClient?.close()
         release()
     }
 
     fun close(force: Boolean) {
-        mqttClient.close(force)
+        mqttClient?.close(force)
         release()
     }
     private fun release(){
-        val field = this::class.java.getDeclaredField("mqttClient")
-        field.isAccessible = true
-        field.set(this,null)
+        mqttClient = null
         aClient = null
-        isInit = false
     }
     private class MQTTClient : MqttClient {
         constructor(serverURI: String?, clientId: String?) : super(serverURI, clientId)
